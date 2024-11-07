@@ -8,12 +8,14 @@ import ru.artemiyandstepan.model.Movie;
 import ru.artemiyandstepan.model.MovieGenre;
 import ru.artemiyandstepan.model.MpaaRating;
 
+import org.jboss.ejb3.annotation.Pool;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Stateless
 @Remote(MovieService.class)
+@Pool("first-service-pool")
 public class MovieServiceEJB implements MovieService {
 
     private static final Map<Integer, Movie> movies = new HashMap<>();
