@@ -10,6 +10,8 @@ import jakarta.ejb.Startup;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.concurrent.TimeUnit;
+
 @Singleton
 @Startup
 public class ConsulRegistration {
@@ -26,20 +28,33 @@ public class ConsulRegistration {
     //регистрация сервиса в consul
     @PostConstruct
     public void registerService() {
-        Consul consul = Consul.builder().withUrl(CONSUL_URL).build();
+        int registrationRetryCounter = 0;
+        while (registrationRetryCounter < 5) {
+            try {
+                Consul consul = Consul.builder().withUrl(CONSUL_URL).build();
 
-        Registration service = ImmutableRegistration.builder()
-                .id(SERVICE_ID)
-                .name(SERVICE_NAME)
-                .address(SERVICE_ADDRESS)
-                .port(SERVICE_PORT)
-                .build();
-
-        try {
-            consul.agentClient().register(service);
-            logger.info("Сервис зарегистрирован в Consul: {}", SERVICE_NAME);
-        } catch (Exception e) {
-            logger.error("Ошибка регистрации в Consul: {}", e.getMessage());
+                Registration service = ImmutableRegistration.builder()
+                        .id(SERVICE_ID)
+                        .name(SERVICE_NAME)
+                        .address(SERVICE_ADDRESS)
+                        .port(SERVICE_PORT)
+                        .build();
+                consul.agentClient().register(service);
+                logger.info("Сервис зарегистрирован в Consul: {}", SERVICE_NAME);
+                break;
+            } catch (Exception e) {
+                registrationRetryCounter++;
+                logger.error("Ошибка регистрации в Consul, попытка {}: {}", registrationRetryCounter, e.getMessage());
+                if (registrationRetryCounter == 5) {
+                    logger.error("Не удалось зарегистрировать сервис в Consul");
+                }
+                // ждет 2с прежде чем пробовать снова
+                try {
+                    TimeUnit.SECONDS.sleep(2);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
         }
     }
 
