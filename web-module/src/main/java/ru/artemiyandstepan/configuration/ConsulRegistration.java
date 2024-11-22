@@ -13,8 +13,8 @@ import org.apache.logging.log4j.Logger;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-@Singleton
 @Startup
+@Singleton
 public class ConsulRegistration {
 
     private static final Logger logger = LogManager.getLogger(ConsulRegistration.class);
