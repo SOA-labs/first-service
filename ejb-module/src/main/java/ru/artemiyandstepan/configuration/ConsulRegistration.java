@@ -20,7 +20,7 @@ public class ConsulRegistration {
     private static final Logger logger = LogManager.getLogger(ConsulRegistration.class);
 
     //конфиг
-    private static final String SERVICE_NAME = "web-service";
+    private static final String SERVICE_NAME = "ejb-service";
     private static final String SERVICE_ID = UUID.randomUUID().toString(); // для создания нескольких инстансов
 
     private static final String SERVICE_ADDRESS = "localhost";
